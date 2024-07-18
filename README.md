@@ -9,7 +9,7 @@ OVS enables consumers of software dependencies to automatically pay for their us
 OVS embraces a number of core ideals:
 
 1. Minimize or eliminate consumer (payer) friction
-2. No change required to existing dependency licenses
+2. No changes required to existing dependency licenses
 3. Voluntary participation from consumers and dependencies
 4. Flexibility across platforms, payment mechanisms, sharing heuristics, and other parameters
 
