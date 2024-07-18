@@ -4,7 +4,7 @@ Version: 0.0.0
 
 Open Value Sharing (OVS) is an open protocol for automatically sharing monetary value with software dependencies.
 
-OVS enables consumers of software dependencies to automatically pay for their use while minimizing or eliminating the friction involved. Though not restricted to open source software dependencies, one main goal of OVS is to enable a new open source native business model, facilitating automatic revenue streams to open source projects without requiring license changes.
+OVS enables consumers of software dependencies to automatically pay for their use while minimizing or eliminating the friction involved. Though not restricted to open source software dependencies, one main goal of OVS is to enable a new open source native business model, facilitating automatic revenue streams to open source projects without requiring changes to their licenses.
 
 OVS embraces a number of core ideals:
 
