@@ -94,7 +94,7 @@ TODO do we need to explain how implementations vs spec works?
 
 MIT License
 
-Copyright (c) 2024 Demergent Labs
+Copyright (c) 2024 Demergent Labs LLC
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
