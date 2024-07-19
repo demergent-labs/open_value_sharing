@@ -37,23 +37,49 @@ The actual mechanism used to facilitate the payment of an asset from a consumer 
 
 ### Payment
 
-An actual monetary payout to a dependency, usually occuring within a batch.
+The transfer of an asset from the consumer to one of its dependencies.
 
 ### Batch
 
-A group of payments performed on the period.
+A group of executed payments.
 
 ### Period
 
-The interval of time on which batches of payments will be made.
+The interval of time between batches.
+
+### Sharing Heuristic
+
+The practical approach for determining and executing payments. For example, Burned Weighted Halving is the heuristic influencing this specification. It is defined below. Other heuristics are possible and not specified here.
+
+### Burned Weighted Halving
+
+Designed for the [ICP](https://internetcomputer.org/) platform and the [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles#cycles) asset, the total amount to be divided between dependencies during a batch is determined by the amount of cycles burned between periods. This amount is cut in half for the first level of the dependency tree. All dependencies at that level share this half of the total amount. This amount is divided between dependencies based on their weight. The weight defaults to 1 but can be overriden individually by the consumer. The next level shares half of the remaining half. This repeats until the final level. The final two levels receive the same amount to be shared between dependencies.
+
+### Payment Amount Calculation Formula
+
+To calculate the payment amount for a dependency, use the following formula:
+
+\[
+\text{payment_amount} = \left( \frac{\text{total_amount}}{2^{\text{adjusted_depth}}} \right) \times \left( \frac{\text{dependency.weight}}{\text{total_weight_for_level}} \right)
+\]
+
+Where:
+
+-   \(\text{adjusted_depth} = \text{dependency.depth} + (\text{if bottom is false, then } 1 \text{ else } 0)\)
+-   \(\text{total_amount_for_level} = \frac{\text{total_amount}}{2^{\text{adjusted_depth}}}\)
+-   \(\text{total_weight_for_level} = \text{depth_weights}[\text{dependency.depth}]\)
+-   \(\text{dependency_ratio} = \frac{\text{dependency.weight} \times \text{total_amount}}{\text{total_weight_for_level}}\)
+
+Simplified:
+\[
+\text{payment_amount} = \frac{\text{total_amount}}{2^{\text{dependency.depth} + (\text{if bottom is false, then } 1 \text{ else } 0)}} \times \frac{\text{dependency.weight}}{\text{depth_weights}[\text{dependency.depth}]}
+\]
+
+This formula calculates the payment amount for a given dependency based on its depth, weight, and the overall structure of the dependency tree, considering whether the dependency is at the bottom level or not.
 
 ### Shared Percentage
 
 The percentage of the total resources consumed over a period of time used as the amount to be distributed to all dependencies during a batch.
-
-### Sharing Heuristic
-
-The heuristic used to determine the amounts for each payment in a batch. For example, Burned Weighted Halving.
 
 ### Depth
 
