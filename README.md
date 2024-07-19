@@ -17,39 +17,19 @@ OVS embraces a number of core ideals:
 
 ### Consumer
 
-Generally a software project that has software dependencies. The consumer is the entity that will be paying dependencies.
+A software project with software dependencies. The consumer will be using and making payments to its dependencies.
 
 ### Dependency
 
-A software project that is used by a consumer. Dependencies can be installed and incorporated with a variety of mechanisms i.e. npm, PiPy, crates.io, etc.
+A software project that is used by a consumer. Dependencies are generally installed and incorporated into consumers using tools such as [npm](https://www.npmjs.com/), [PyPI](https://pypi.org/), or [crates.io](https://crates.io/).
 
 ### Platform
 
-A broad ecosystem or project that hosts the consumer and dependencies. A platform would be something like ICP, Bitcoin, Ethereum, Solana, AWS, Azure, etc.
+The infrastructure or environment that hosts or executes the consumers and their dependencies. Platforms generally foster ecosystems or communities such as [Linux](https://en.wikipedia.org/wiki/Linux), [Android](<https://en.wikipedia.org/wiki/Android_(operating_system)>), [Bitcoin](https://bitcoin.org/bitcoin.pdf), [Ethereum](https://ethereum.org/en/), [Solana](https://solana.com/), [ICP](https://internetcomputer.org/), [AO](https://ao.arweave.dev/), [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/en-us), or [Vercel](https://vercel.com/).
 
 ### Asset
 
 A monetary instrument such as USD, Euro, Mexican Pesos, USDC, USDT, BTC, ETH, cycles, etc
-
-### Shared Percentage
-
-The percentage of the total resources consumed over a period of time used as the amount to be distributed to all dependencies during a batch.
-
-### Period
-
-The interval of time on which batches of payments will be made.
-
-### Sharing Heuristic
-
-The heuristic used to determine the amounts for each payment in a batch. For example, Burned Weighted Halving.
-
-### Depth
-
-The depth in the dependency tree that a dependency is at.
-
-### Weight
-
-The weight given to a dependency, generally to be used to determine the payment amount at the same level in the tree. Under the most common heuristic.
 
 ### Payment Mechanism
 
@@ -62,6 +42,26 @@ An actual monetary payout to a dependency, usually occuring within a batch.
 ### Batch
 
 A group of payments performed on the period.
+
+### Period
+
+The interval of time on which batches of payments will be made.
+
+### Shared Percentage
+
+The percentage of the total resources consumed over a period of time used as the amount to be distributed to all dependencies during a batch.
+
+### Sharing Heuristic
+
+The heuristic used to determine the amounts for each payment in a batch. For example, Burned Weighted Halving.
+
+### Depth
+
+The depth in the dependency tree that a dependency is at.
+
+### Weight
+
+The weight given to a dependency, generally to be used to determine the payment amount at the same level in the tree. Under the most common heuristic.
 
 ## Implementation
 
