@@ -55,39 +55,25 @@ The practical approach for determining and executing payments. For example, Burn
 
 Designed for the [ICP](https://internetcomputer.org/) platform and the [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles#cycles) asset, the total amount to be divided between dependencies during a batch is determined by the amount of cycles burned between periods. This amount is cut in half for the first level of the dependency tree. All dependencies at that level share this half of the total amount. This amount is divided between dependencies based on their weight. The weight defaults to 1 but can be overriden individually by the consumer. The next level shares half of the remaining half. This repeats until the final level. The final two levels receive the same amount to be shared between dependencies.
 
-### Payment Amount Calculation Formula
-
-To calculate the payment amount for a dependency, use the following formula:
-
-\[
-\text{payment_amount} = \left( \frac{\text{total_amount}}{2^{\text{adjusted_depth}}} \right) \times \left( \frac{\text{dependency.weight}}{\text{total_weight_for_level}} \right)
-\]
-
-Where:
-
--   \(\text{adjusted_depth} = \text{dependency.depth} + (\text{if bottom is false, then } 1 \text{ else } 0)\)
--   \(\text{total_amount_for_level} = \frac{\text{total_amount}}{2^{\text{adjusted_depth}}}\)
--   \(\text{total_weight_for_level} = \text{depth_weights}[\text{dependency.depth}]\)
--   \(\text{dependency_ratio} = \frac{\text{dependency.weight} \times \text{total_amount}}{\text{total_weight_for_level}}\)
-
-Simplified:
-\[
-\text{payment_amount} = \frac{\text{total_amount}}{2^{\text{dependency.depth} + (\text{if bottom is false, then } 1 \text{ else } 0)}} \times \frac{\text{dependency.weight}}{\text{depth_weights}[\text{dependency.depth}]}
-\]
-
-This formula calculates the payment amount for a given dependency based on its depth, weight, and the overall structure of the dependency tree, considering whether the dependency is at the bottom level or not.
+$$
+\text{payment\_amount} = \frac{\text{total\_amount}}{2^{\text{dependency\_depth} + (\text{if bottom is true, then } 0 \text{ else } 1)}} \times \frac{\text{dependency\_weight}}{\text{dependency\_depth}}
+$$
 
 ### Shared Percentage
 
-The percentage of the total resources consumed over a period of time used as the amount to be distributed to all dependencies during a batch.
+If utilizing a resource usage-based sharing heuristic, this is the percentage of resource usage between periods used to determine the total payment amount to be divided between dependencies in a batch. For example in Burned Weighted Halving, this percentage is applied to the total number of cycles burned between periods.
+
+### Dependency Tree
+
+The relationships between dependencies and their consumer can be modeled as a tree. The consumer is at the base of the tree. It will depend on a number of dependencies directly, which we will call level or depth 0. The dependencies of those dependencies (transitive dependencies) create another level in the tree which we will call level 1. The dependencies of level 1 would create another level which we will call level 2. And the pattern repeats until there are no more dependencies.
 
 ### Depth
 
-The depth in the dependency tree that a dependency is at.
+The level at which a dependency is located in the dependency tree.
 
 ### Weight
 
-The weight given to a dependency, generally to be used to determine the payment amount at the same level in the tree. Under the most common heuristic.
+A number representing the proportion of the total payment assigned to a level for a batch that a dependency should receive relative to its siblings at the same level.
 
 ## Implementation
 
@@ -200,46 +186,7 @@ type dependency_config = {
 }
 ```
 
-### Explain each concept
-
--   platforms
--   assets
--   payment mechanism
--   sharedPercentage
--   period
--   sharingHeuristic
--   depth
--   weight
--   periodic batch
--   payment
-
 TODO should we explain logging etc? Should we explain what the implementation should do about logging, about providing stats etc?
-
-### Payment Heuristic
-
-At the end of each period, a Periodic Payout Amount is calculated as follows:
-
-Determine the total Shared Value Source. Multiply that by the Shared Value Source Percentage. This is the PPA.
-
-Take the PPA and multiply it be .5. This is the PPA for the first level. Divide the PPA by the number of dependencies in that level and pay out that amount to each dependency.
-
-The new PPA is the amount leftover after multiplying the original PPA by .5.
-
-#### Shared Value Source
-
-The amount of cycles burned within a period.
-
-#### Shared Value Source Percentage
-
-The percentage of the Shared Value Source that will be paid out at the end of a period.
-
-#### Period
-
-The length of time between payouts.
-
-#### Periodic Payout Amount (PPA)
-
-The amount to be paid out at the end of a period.
 
 TODO do we need to explain supply/demand, prices, common concerns?
 
