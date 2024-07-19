@@ -80,9 +80,15 @@ A number representing the proportion of the total payment assigned to a level fo
 
 ## Implementation
 
+The implementation is executed by the consumer. Dependencies must define a configuration available to the implementation. The implementation processes the dependency tree, gathering all dependency configuration information. This information is combined with sensible defaults or a consumer configuration to produce a final list of dependencies with dependency tree depth and weight information. This information is used to initiate a periodic payment process. The consumer must not be required to do anything for a default implementation to work. Dependencies must define configurations.
+
+This specification uses [WIT](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) for type definitions.
+
 ### Dependency Configuration
 
-Dependencies must provide all of the necessary information to their consumer for proper payments to be made. Dependencies should define one or more of the following collections of properties in a configuration format and location that the implementation can automatically access:
+Dependencies must provide all of the necessary information to their consumer's implementation for proper payments to be made. Dependencies should define one or more of the following collections of properties in a configuration format and location that the consumer's implementation can automatically access. For example, dependencies may elect to store the information specified above in the JSON format in a file called `.openvaluesharing.json`. This file could be in the root directory of the project, and if downloaded by the consumer (as is the case with `npm` packages), it would be automatically available for processing.
+
+Dependency configuration data structures:
 
 ```
 type custom_value = variant {
@@ -103,11 +109,9 @@ type dependency = record {
 }
 ```
 
-For example, dependencies may elect to store the information specified above in the JSON format in a file called `.openvaluesharing.json`. This file could be in the root directory of the project, and if downloaded by the consumer (as is the case with `npm` packages), it would be automatically available for processing.
-
 ### Consumer Configuration
 
-Consumers must provide all of the necessary information to the implementation for proper execution of the sharing heuristic. Implementations should utilize sensible defaults and not require consumers to define anything by default for the sharing heuristic to work. To do otherwise would violate ideal 1.
+Implementations must utilize sensible defaults and not require consumers to do anything for a default implementation to work. To do otherwise would violate ideal 1. Consumers must be able to override the sensible defaults.
 
 If necessary, a consumer configuration format and location should be specified to allow the consumer to override the following properties:
 
@@ -128,22 +132,33 @@ type consumer = record {
 }
 ```
 
-The `kill_switch` is required to comply with ideal 3. `platforms` and `assets` instruct the implementation to only honor those `platforms` and `assets` for the consumer. The `shared_percentage`, `period`, `sharing_heuristic`, and `weights` should have sensible defaults but can be overriden by the consumer.
+The `kill_switch` turns OVS on or off and is required to comply with ideal 3. Most of the remaining properties should be self-explanatory. `weights` allows the consumer to control payment amounts for individual dependencies, including turning payments off with a weight of 0.
 
-### Batch Payment Processing
+### Periodic Payment Processing
 
-The implementation should use the consumer configuration and dependency configurations to implement batch payment processing on a period. The implementation should traverse the dependency tree and collect all dependency configurations. If the depth is important to the sharing heuristic then it should be obtained. Weights should have a sensible default and must be able to be overriden by the consumer. Every period payments should be made following the sharing heuristic. Implementations must honor the consumer and dependency configurations. Payments should be peer-to-peer and logging may be implemented.
+The implementation must use the consumer configuration and dependency configurations to implement periodic payment processing. Every period payments should be made following the sharing heuristic. Payments should be peer-to-peer and logging/statistics may be implemented by consumers and dependencies.
 
-### Warning
+## ICP Implementation
 
-Ideal 1 is believed to be vital to the success of OVS. The consumer must not be made to do anything by default. The consumer should have power to override but should not be required to override. Anything you ask the payer to do you should consider an extreme risk of causing the consumer to turn off OVS. This is not so important for the dependency, as the funds received are believed to be motivation enough to go through some effort.
+The first MVP implementation of OVS is live on [ICP](https://internetcomputer.org/) in the [Azle project](https://github.com/demergent-labs/azle). Demergent Labs, the author of the initial draft of this specification, also authored the Azle project and its OVS implementation.
 
-### Concerns
+-   [Azle's implementation of consumer and dependency config processing](https://github.com/demergent-labs/azle/blob/main/src/compiler/get_consumer_config.ts)
+-   [Azle's implementation of periodic payment processing](https://github.com/demergent-labs/azle/tree/main/src/compiler/rust/open_value_sharing)
 
-Various concerns have been brought up over time.
+## Economic Concerns
 
--   Consumers will fork libraries so that they don't have to pay
--   Consumers will turn OVS off
+Some have brought up the concern that consumers will decide to turn off OVS. Others fear that consumers will fork dependencies with OVS enabled.
+
+To the first concern, ideal 3 does allow for consumers to choose to turn off OVS. The rebuttal is that there is a cost to turning off OVS, and it may be higher than the cost of leaving it on. Leaving it on costs money. Turning it off costs mental effort, team time, and the conscious decision to not give back to open source. There could also be public pressures that arise incentivizing companies to continue to give back, especially if it was the default setting and a conscious decision to not give back.
+
+To the second concern, the rebuttal is that the consumer configuration allows consumers to turn off payments entirely or for individual dependencies. It seems illogical then for a consumer to go through the effort to fork projects to get around OVS when it is much simpler and easier to just turn it off.
+
+## Prior Art
+
+-   [npm Supporting Open Source Maintainers](https://blog.npmjs.org/post/187382017885/supporting-open-source-maintainers.html)
+-   [Brave Rewards](https://brave.com/brave-rewards/)
+-   [Sustainus](https://github.com/lastmjs/sustainus)
+-   [Podcrypt](https://medium.com/hackernoon/podcrypt-automatic-fair-peer-to-peer-podcast-donations-with-ether-f0a638111410)
 
 ## License
 
@@ -169,14 +184,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-TODO should we explain logging etc? Should we explain what the implementation should do about logging, about providing stats etc?
-
-TODO do we need to explain supply/demand, prices, common concerns?
-
-TODO do we need to explain how implementations vs spec works?
-
-TODO should we have a prior art section?
-
 TODO should we link to the Azle implementation?
-
-TODO should we explain that we're using WIT?
