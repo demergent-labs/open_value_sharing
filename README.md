@@ -29,11 +29,11 @@ The infrastructure or environment that hosts or executes the consumers and their
 
 ### Asset
 
-A monetary instrument such as USD, Euro, Mexican Pesos, USDC, USDT, BTC, ETH, cycles, etc
+The currency or medium of exchange that a consumer will use to pay a dependency. Most likely to be a cryptocurrency, fiat currency, or similar medium of exchange. Examples are [USD](https://en.wikipedia.org/wiki/United_States_dollar), [EUR](https://en.wikipedia.org/wiki/Euro), [USDC](https://www.circle.com/en/usdc), [USDT](https://tether.to/en/), [BTC](https://en.wikipedia.org/wiki/Bitcoin), [ETH](https://en.wikipedia.org/wiki/Ethereum), or [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles#cycles).
 
 ### Payment Mechanism
 
-Once a platform and asset is selected, the payment mechanism is the rails to use. For example, ACH, wire transfer, ERC20, deposit_cycles, cycles ledger, credit card, etc.
+The actual mechanism used to facilitate the payment of an asset from a consumer to a dependency for a specific platform. Examples are [ACH](https://www.fiscal.treasury.gov/ach), [wire transfer](https://en.wikipedia.org/wiki/Wire_transfer), [ERC20](https://ethereum.org/en/developers/docs/standards/tokens/erc-20/), [SPL](https://spl.solana.com/token), or [cycles ledger](https://internetcomputer.org/docs/current/developer-docs/defi/cycles/cycles-ledger).
 
 ### Payment
 
