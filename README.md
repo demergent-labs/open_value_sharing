@@ -125,7 +125,7 @@ type consumer = record {
     kill_switch: bool,
     platforms: list<string>,
     assets: list<string>,
-    shared_percentage: u32,
+    shared_percentage: f32,
     period: u32,
     sharing_heuristic: string,
     weights: list<weight>
