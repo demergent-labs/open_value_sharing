@@ -80,17 +80,70 @@ A number representing the proportion of the total payment assigned to a level fo
 
 ## Implementation
 
-Dependencies must define their `name`, `platforms`, `assets`, and `payment mechanisms`. Dependencies may define more than one `platform`, `asset`, or `payment mechanism`. Implementations can allow the dependency to define this information in a variety of ways, including JSON, YAML, etc file.
+### Dependency Configuration
 
-```wit
-TODO put the dependency config info here
+Dependencies must provide all of the necessary information to their consumer for proper payments to be made. Dependencies should define one or more of the following collections of properties in a configuration format and location that the implementation can automatically access:
+
+```
+type custom_value = variant {
+    number(u32),
+    text(string)
+}
+
+type custom_item = record {
+    key: string,
+    value: custom_value
+}
+
+type dependency = record {
+    platform: string,
+    asset: string,
+    payment_mechanism: string,
+    custom: list<custom_item>
+}
 ```
 
-Generally an implementation should expect dependencies to define their dependency configuration in a manner that is easily accessible during a build process. For example, the dependency config could be included inside of the dependency assets required to be on the consumer's machine. During build the implementation would find all dependencies, assigning depths, weights, and extracting the `platforms`, `assets`, and `payment mechanisms` accepted by each dependency.
+For example, dependencies may elect to store the information specified above in the JSON format in a file called `.openvaluesharing.json`. This file could be in the root directory of the project, and if downloaded by the consumer (as is the case with `npm` packages), it would be automatically available for processing.
 
-The implementation should use the consumer configuration to override any weights for individual dependencies. The consumer should also be able to turn OVS on or off, and should be able to specify which platforms and assets it is willing to use. It should also be able to set the period, shared percentage, and sharing heuristic.
+### Consumer Configuration
 
-The implementation should use the dependency and consumer configurations to initiate a periodic batch payment process. On each period payments should be made to each dependency using the platform, asset, payment mechanism, and custom information.
+Consumers must provide all of the necessary information to the implementation for proper execution of the sharing heuristic. Implementations should utilize sensible defaults and not require consumers to define anything by default for the sharing heuristic to work. To do otherwise would violate ideal 1.
+
+If necessary, a consumer configuration format and location should be specified to allow the consumer to override the following properties:
+
+```
+type weight = record {
+    name: string,
+    weight: u32
+}
+
+type consumer = record {
+    kill_switch: bool,
+    platforms: list<string>,
+    assets: list<string>,
+    shared_percentage: u32,
+    period: u32,
+    sharing_heuristic: string,
+    weights: list<weight>
+}
+```
+
+The `kill_switch` is required to comply with ideal 3. `platforms` and `assets` instruct the implementation to only honor those `platforms` and `assets` for the consumer. The `shared_percentage`, `period`, `sharing_heuristic`, and `weights` should have sensible defaults but can be overriden by the consumer.
+
+### Batch Payment Processing
+
+The implementation should use the consumer configuration and dependency configurations to implement batch payment processing on a period. The implementation should traverse the dependency tree and collect all dependency configurations. If the depth is important to the sharing heuristic then it should be obtained. Weights should have a sensible default and must be able to be overriden by the consumer. Every period payments should be made following the sharing heuristic. Implementations must honor the consumer and dependency configurations. Payments should be peer-to-peer and logging may be implemented.
+
+### Warning
+
+Ideal 1 is believed to be vital to the success of OVS. The consumer must not be made to do anything by default. The consumer should have power to override but should not be required to override. Anything you ask the payer to do you should consider an extreme risk of causing the consumer to turn off OVS. This is not so important for the dependency, as the funds received are believed to be motivation enough to go through some effort.
+
+### Concerns
+
+Various concerns have been brought up over time.
+
+-   Consumers will fork libraries so that they don't have to pay
+-   Consumers will turn OVS off
 
 ## License
 
@@ -116,79 +169,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-# Notes (everything below is just scratch space)
-
-## Specification
-
-This specification attempts to define the terms, data types, and processes common across all OVS implementations. Implementations will mostly be involved in choosing file formats and locations, languages, APIs, etc.
-
-This specification uses [WIT](https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md) to define types.
-
-OVS mainly deals with the relationship between a `consumer` and its `dependencies`.
-
-### Consumer
-
-```wit
-type consumer = {
-    killSwitch: bool,
-    platforms: list<string>,
-    assets: list<string>,
-    shared_percentage: u32,
-    period: u32,
-    sharing_heuristic: string,
-    dependencies: list<dependency>
-}
-```
-
-### Dependency
-
-```wit
-type custom_value = variant {
-    number(u32),
-    text(string),
-    record(list<custom_item>)
-}
-
-type custom_item = {
-    key: string,
-    value: custom_value
-}
-
-type dependency = {
-    name: string,
-    depth: u32,
-    weight: u32,
-    platform: string,
-    asset: string,
-    payment_mechanism: string,
-    custom: list<custom_entry>
-}
-```
-
-Consumers and dependencies should be allowed full control over specifying as many properties as possible. Implementations should allow consumers to override dependency weights. Depth should be calculated by the consumer's implementation, and should not be specified by the dependency. The dependency should specify: name, accepted platforms, accepted asset, accepted payment mechanism, and any custom fields.
-
-The consumer should decide its own default weight for dependencies, should allow dependency weights to be overriden, and should calculate depths. Consumers should never use a platform, asset, or payment mechanism not specified by the dependency.
-
-Consumers should be able to provide configurations to their implementation. Dependencies as well.
-
-A consumer config might be located in a JSON or other configuration file, same as the dependency config. Implementations are free to choose their own means of specifying the consumer and dependency configurations.
-
-A consumer config might look like this:
-
-```
-type consumer_config = {
-
-}
-```
-
-A dependency config might look like this:
-
-```
-type dependency_config = {
-
-}
-```
-
 TODO should we explain logging etc? Should we explain what the implementation should do about logging, about providing stats etc?
 
 TODO do we need to explain supply/demand, prices, common concerns?
@@ -198,3 +178,5 @@ TODO do we need to explain how implementations vs spec works?
 TODO should we have a prior art section?
 
 TODO should we link to the Azle implementation?
+
+TODO should we explain that we're using WIT?
