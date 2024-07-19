@@ -12,6 +12,7 @@ OVS embraces a number of core ideals:
 2. No changes required to existing dependency licenses
 3. Voluntary participation from consumers and dependencies
 4. Flexibility across platforms, payment mechanisms, sharing heuristics, and other parameters
+5. Heuristics over perfection
 
 ## Definitions
 
@@ -49,15 +50,17 @@ The interval of time between batches.
 
 ### Sharing Heuristic
 
-The practical approach for determining and executing payments. For example, Burned Weighted Halving is the heuristic influencing this specification. It is defined below. Other heuristics are possible and not specified here.
+A practical approach for determining and executing payments. For example, Burned Weighted Halving is the heuristic influencing this specification. It is explained below. Implementations may choose other heuristics which are not specified here.
 
 ### Burned Weighted Halving
 
-Designed for the [ICP](https://internetcomputer.org/) platform and the [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles#cycles) asset, the total amount to be divided between dependencies during a batch is determined by the amount of cycles burned between periods. This amount is cut in half for the first level of the dependency tree. All dependencies at that level share this half of the total amount. This amount is divided between dependencies based on their weight. The weight defaults to 1 but can be overriden individually by the consumer. The next level shares half of the remaining half. This repeats until the final level. The final two levels receive the same amount to be shared between dependencies.
+This heuristic is designed for the [ICP](https://internetcomputer.org/) platform and the [cycles](https://internetcomputer.org/docs/current/concepts/tokens-cycles#cycles) asset. It greatly influences this specification, and its basic concepts are expected to influence the default heuristic for most platforms.
 
-$$
-\text{payment\_amount} = \frac{\text{total\_amount}}{2^{\text{dependency\_depth} + (\text{if bottom is true, then } 0 \text{ else } 1)}} \times \frac{\text{dependency\_weight}}{\text{dependency\_depth}}
-$$
+Burned Weighted Halving is a resource usage-based sharing heuristic. It attempts to measure resource usage at a high level rather than at the level of an individual dependency. That measurement combined with dependency weights and depths in the dependency tree are used to attempt to fairly compensate dependencies.
+
+The total payment amount to be divided between dependencies during a batch is determined by the amount of cycles burned between periods multiplied by the shared percentage. This amount is cut in half and assigned to the first level of the dependency tree. All dependencies at the first level share this half of the total payment amount. This amount is divided between dependencies at the first level based on their weight. The weight defaults to 1 but can be overriden individually by the consumer.
+
+The next level in the dependency tree shares half of the remaining half not assigned to the first level. This repeats until the final level. The final two levels receive the same amount to be shared between their dependencies.
 
 ### Shared Percentage
 
@@ -65,7 +68,7 @@ If utilizing a resource usage-based sharing heuristic, this is the percentage of
 
 ### Dependency Tree
 
-The relationships between dependencies and their consumer can be modeled as a tree. The consumer is at the base of the tree. It will depend on a number of dependencies directly, which we will call level or depth 0. The dependencies of those dependencies (transitive dependencies) create another level in the tree which we will call level 1. The dependencies of level 1 would create another level which we will call level 2. And the pattern repeats until there are no more dependencies.
+The relationships between dependencies and their consumer can be modeled as a tree. The consumer is at the base of the tree. It will depend on a number of dependencies directly, which we will collectively call level or depth 0. The dependencies of those dependencies (transitive dependencies) create another level in the tree which we will call level 1. The dependencies of level 1 would create another level which we will call level 2. And the pattern repeats until there are no more dependencies.
 
 ### Depth
 
